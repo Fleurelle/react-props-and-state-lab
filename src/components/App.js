@@ -15,6 +15,34 @@ class App extends React.Component {
     }
   }
 
+  //should change filter type
+  onChangeType = () => {
+    this.setState(() => {
+      return {
+        filters: {
+          ...this.state.filters,
+          type: ''
+        }
+      }
+    })
+  }
+
+  //should fetch all pets by default
+  defaultFetchPets = () => {
+    fetch("/api/pets")
+      .then(res => res.json())
+      .then(jsonData => console.log(jsonData))
+
+  }
+
+  //should fetch pet types using the type parameter based on the filter
+  fetchPetsParam = () => {
+    fetch(`/api/pets?type=${this.state.filters.type}`)
+      .then(res => res.json())
+      .then(console.log)
+  }
+
+
   render() {
     return (
       <div className="ui container">
@@ -24,7 +52,9 @@ class App extends React.Component {
         <div className="ui container">
           <div className="ui grid">
             <div className="four wide column">
-              <Filters />
+              <Filters
+                onClick={this.onChangeType}
+                onFindPetsClick={this.defaultFetchPets} />
             </div>
             <div className="twelve wide column">
               <PetBrowser />
