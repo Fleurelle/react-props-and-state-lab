@@ -16,30 +16,52 @@ class App extends React.Component {
   }
 
   //should change filter type
-  onChangeType = () => {
-    this.setState(() => {
-      return {
-        filters: {
-          ...this.state.filters,
-          type: ''
-        }
+  changeType = (event) => {
+    this.setState({
+      filters: {
+        type: event.target.value
       }
     })
   }
 
-  //should fetch all pets by default
-  defaultFetchPets = () => {
-    fetch("/api/pets")
+  //Fetching pets 
+  fetchPets = () => {
+    // should fetch all pets by default
+    let defaultURL = "/api/pets"
+    // should fetch pet types using the type parameter based on the filter
+    if (this.state.filters.type !== "all") {
+      defaultURL = `/api/pets?type=${this.state.filters.type}`
+    }
+    fetch(defaultURL)
       .then(res => res.json())
-      .then(jsonData => console.log(jsonData))
-
+      //Set <App/>'s state.pets with the results of your fetch request 
+      //so you can pass the pet data down as props to <PetBrowser />
+      .then(petData => {
+        this.setState({
+          pets: petData
+        })
+      })
   }
 
-  //should fetch pet types using the type parameter based on the filter
-  fetchPetsParam = () => {
-    fetch(`/api/pets?type=${this.state.filters.type}`)
-      .then(res => res.json())
-      .then(console.log)
+  //should set a pet's adopted status to true
+  petAdoptStatus = (petID) => {
+    //GOAL: take an id for pet, find the matching pet and change isAdopted to true. 
+    //1. take ID for pet 
+    //2. find matching ID -i can use .map() 
+    //3. change attribute
+    const findPets = this.state.pets.map((pet) => {
+      if (pet !== petID) {
+        return {
+            ...pet,
+            isAdopted: true
+        }
+      } else {
+        return null
+      }
+    })
+    this.setState({
+      pets:findPets
+    })
   }
 
 
@@ -53,11 +75,14 @@ class App extends React.Component {
           <div className="ui grid">
             <div className="four wide column">
               <Filters
-                onClick={this.onChangeType}
-                onFindPetsClick={this.defaultFetchPets} />
+                onChangeType={this.changeType}
+                onFindPetsClick={this.fetchPets} />
             </div>
             <div className="twelve wide column">
-              <PetBrowser />
+              <PetBrowser
+                pets={this.state.pets}
+                onAdoptPet={this.petAdoptStatus}
+              />
             </div>
           </div>
         </div>
@@ -65,5 +90,4 @@ class App extends React.Component {
     )
   }
 }
-
 export default App
